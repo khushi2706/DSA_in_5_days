@@ -1,0 +1,354 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>DSA in 5 Days</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a transit-map roadmap. One vertical line, one station per day, topics as stops along it. */
+:root {
+  --bg: #eef3f6;
+  --surface: #ffffff;
+  --ink: #12202b;
+  --muted: #55677a;
+  --line: #c3d1db;
+  --accent: #0a7a74;
+  --accent-soft: #d8efed;
+  --easy: #1f7a3d;
+  --med: #a65f00;
+  --hard: #b3261e;
+  --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1a22; --surface: #15252f; --ink: #e6eef3; --muted: #93a8b7; --line: #2c4251;
+    --accent: #4cc9bf; --accent-soft: #17383a; --easy: #55c27a; --med: #e5a23b; --hard: #f07a72;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1a22; --surface: #15252f; --ink: #e6eef3; --muted: #93a8b7; --line: #2c4251;
+  --accent: #4cc9bf; --accent-soft: #17383a; --easy: #55c27a; --med: #e5a23b; --hard: #f07a72;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.55;
+  padding-block: 28px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 860px; margin: 0 auto; }
+a { color: var(--accent); text-underline-offset: 2px; }
+a:focus-visible, input:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
+
+header h1 { font-family: var(--font-display); font-weight: 800; font-size: clamp(2rem, 6vw, 3.1rem); line-height: 1.05; margin: 0 0 10px; letter-spacing: -0.02em; text-wrap: balance; }
+header p { margin: 0; color: var(--muted); max-width: 62ch; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 18px 0 0; font-family: var(--font-mono); font-size: 12.5px; color: var(--muted); }
+.meta b { color: var(--ink); font-weight: 500; }
+
+.jump { display: flex; flex-wrap: wrap; gap: 8px; margin: 22px 0 6px; }
+.jump a { font-family: var(--font-mono); font-size: 12.5px; text-decoration: none; color: var(--ink); background: var(--surface); border: 1px solid var(--line); padding: 5px 10px; border-radius: 4px; }
+.jump a:hover { border-color: var(--accent); color: var(--accent); }
+
+.overall { margin: 16px 0 0; display: flex; align-items: center; gap: 12px; font-family: var(--font-mono); font-size: 12.5px; color: var(--muted); }
+.bar { flex: 1; height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; max-width: 320px; }
+.bar i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .25s; }
+
+.line { position: relative; margin-top: 30px; padding-left: 44px; }
+.line::before { content: ""; position: absolute; left: 13px; top: 8px; bottom: 0; width: 4px; background: var(--accent); border-radius: 2px; }
+.day { position: relative; padding-bottom: 38px; }
+.day:last-child { padding-bottom: 0; }
+.station { position: absolute; left: -44px; top: 2px; width: 30px; height: 30px; border-radius: 50%; background: var(--bg); border: 4px solid var(--accent); display: grid; place-items: center; font-family: var(--font-mono); font-weight: 500; font-size: 12px; }
+.day-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; }
+.day-head h2 { font-family: var(--font-display); font-weight: 800; font-size: 1.55rem; line-height: 1.15; margin: 0; letter-spacing: -0.01em; text-wrap: balance; }
+.hours { font-family: var(--font-mono); font-size: 12.5px; color: var(--muted); }
+.goal { margin: 6px 0 16px; color: var(--muted); max-width: 64ch; }
+
+.block { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 14px 16px; margin-top: 12px; min-width: 0; }
+.block h3 { margin: 0 0 10px; font-family: var(--font-mono); font-weight: 500; font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+
+.stops { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.stops li { display: grid; grid-template-columns: 10px 1fr; gap: 10px; align-items: start; }
+.stops li::before { content: ""; width: 10px; height: 10px; margin-top: 6px; border-radius: 50%; border: 2px solid var(--accent); background: var(--surface); }
+.stops b { font-weight: 600; }
+.stops span { color: var(--muted); }
+
+.watch { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.watch li { display: flex; flex-wrap: wrap; gap: 2px 10px; align-items: baseline; }
+.watch .tag { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+
+.practice { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.practice li { display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 6px 0; border-top: 1px solid var(--line); }
+.practice li:first-child { border-top: 0; }
+.practice input { width: 17px; height: 17px; accent-color: var(--accent); margin: 0; }
+.practice .name { min-width: 0; }
+.practice .name a { text-decoration: none; font-weight: 500; color: var(--ink); }
+.practice .name a:hover { color: var(--accent); text-decoration: underline; }
+.practice .pat { display: block; font-size: 12.5px; color: var(--muted); }
+.practice li.done .name a { color: var(--muted); text-decoration: line-through; }
+.chips { display: flex; gap: 6px; align-items: center; }
+.d { font-family: var(--font-mono); font-size: 11px; font-weight: 500; padding: 1px 7px; border-radius: 3px; border: 1px solid currentColor; }
+.d.E { color: var(--easy); } .d.M { color: var(--med); } .d.H { color: var(--hard); }
+.core { font-family: var(--font-mono); font-size: 11px; color: var(--accent); }
+.count { font-family: var(--font-mono); font-size: 12px; color: var(--muted); margin-top: 8px; }
+.tip { margin: 12px 0 0; padding: 10px 14px; background: var(--accent-soft); border-radius: 6px; font-size: 14px; }
+.tip b { font-family: var(--font-mono); font-weight: 500; font-size: 11.5px; letter-spacing: .06em; text-transform: uppercase; margin-right: 6px; }
+footer { margin-top: 40px; font-size: 13px; color: var(--muted); max-width: 66ch; }
+footer p { margin: 0 0 8px; }
+@media (max-width: 480px) {
+  .line { padding-left: 38px; } .station { left: -38px; }
+  .practice li { grid-template-columns: 22px minmax(0, 1fr); }
+  .practice .chips { grid-column: 2; }
+}
+@media (prefers-reduced-motion: reduce) { .bar i { transition: none; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>DSA in 5 Days</h1>
+    <p>A crash route through the patterns that show up most in coding interviews. Each day has the concepts to learn, videos to watch, and problems to solve. Tick problems off as you go and your progress stays in this browser.</p>
+    <div class="meta"><span><b>5</b> days</span><span><b>~6–8 h</b> per day</span><span><b id="total">0</b> problems</span></div>
+    <nav class="jump" aria-label="Jump to day">
+      <a href="#day-1">Day 1</a><a href="#day-2">Day 2</a><a href="#day-3">Day 3</a><a href="#day-4">Day 4</a><a href="#day-5">Day 5</a>
+    </nav>
+    <div class="overall"><span id="overall-text">0 / 0 solved</span><div class="bar"><i id="overall-bar"></i></div></div>
+  </header>
+
+  <main class="line" id="roadmap"></main>
+
+  <footer>
+    <p>Five days gets you the pattern for each topic and a first pass at the standard problems. It will not make every problem feel easy. After day 5, redo the ones you missed from memory a few days later; that is where recall sticks.</p>
+    <p>Problems link to LeetCode. Videos are from NeetCode, freeCodeCamp and other free YouTube channels.</p>
+  </footer>
+</div>
+
+<script>
+var LC = function (s) { return "https://leetcode.com/problems/" + s + "/"; };
+var DAYS = [
+  {
+    n: 1, title: "Arrays, hashing, two pointers, sliding window", hours: "7 h",
+    goal: "Learn to measure a solution, then pick up the four patterns behind most easy and medium array and string questions.",
+    stops: [
+      ["Big-O for time and space", "Know why a nested loop is O(n²) and a hash lookup is O(1) on average."],
+      ["Arrays, strings, prefix sums", "Precompute running totals to answer range questions fast."],
+      ["Hash map and hash set", "Reach for one when you need counts, lookups or duplicate checks."],
+      ["Two pointers", "Sorted input, palindromes, or a pair that must meet a condition."],
+      ["Sliding window", "A contiguous subarray or substring that grows and shrinks as you scan."]
+    ],
+    watch: [
+      ["freeCodeCamp: 49-hour DSA course (Parth Vyas)", "https://youtu.be/xwI5OBEnsZU", "Use as reference, watch the array and hashing parts only"],
+      ["freeCodeCamp: DSA patterns for LeetCode (AlgoMonster)", "https://www.youtube.com/watch?v=Z_c4byLrNBU", "Overview of when to use which pattern"],
+      ["NeetCode: Two Sum walkthrough", "https://youtu.be/KLlXCFG5TnA", "Brute force to one-pass hash map"],
+      ["NeetCode: Product of Array Except Self", "https://youtu.be/bNvIQI2wAjk", "Prefix and suffix idea"],
+      ["NeetCode: Best Time to Buy and Sell Stock", "https://youtu.be/1pkOgXD63yU", "Easiest sliding window to start with"],
+      ["Hashing playlist, basics to advanced", "https://www.youtube.com/playlist?list=PLSH9gf0XETouStSgwNw_7YCHhRgQU4lvd", "Optional deep dive on hashing"]
+    ],
+    practice: [
+      ["Two Sum", "two-sum", "E", "Hash map", 1],
+      ["Contains Duplicate", "contains-duplicate", "E", "Hash set", 1],
+      ["Valid Anagram", "valid-anagram", "E", "Frequency count", 0],
+      ["Group Anagrams", "group-anagrams", "M", "Hash map with a sorted key", 1],
+      ["Top K Frequent Elements", "top-k-frequent-elements", "M", "Frequency count then bucket sort", 1],
+      ["Product of Array Except Self", "product-of-array-except-self", "M", "Prefix and suffix products", 1],
+      ["Longest Consecutive Sequence", "longest-consecutive-sequence", "M", "Hash set, start only at sequence beginnings", 0],
+      ["Valid Palindrome", "valid-palindrome", "E", "Two pointers from both ends", 1],
+      ["3Sum", "3sum", "M", "Sort, fix one, two pointers on the rest", 1],
+      ["Container With Most Water", "container-with-most-water", "M", "Two pointers, move the shorter side", 0],
+      ["Best Time to Buy and Sell Stock", "best-time-to-buy-and-sell-stock", "E", "Track the running minimum", 1],
+      ["Longest Substring Without Repeating Characters", "longest-substring-without-repeating-characters", "M", "Variable sliding window with a set", 1]
+    ],
+    tip: "Short on time? Do the starred problems first. Each one teaches a pattern the others reuse."
+  },
+  {
+    n: 2, title: "Stack, binary search, linked list", hours: "7 h",
+    goal: "Three structures where one clean idea solves the whole family: last in first out, halving the search space, and pointer moves.",
+    stops: [
+      ["Stack", "Matching brackets, undo history, and finding the next greater value."],
+      ["Queue", "First in first out. You will need it again for tree and graph traversal."],
+      ["Binary search", "Works on any sorted or monotonic range, including rotated arrays."],
+      ["Linked list", "Reverse in place, fast and slow pointers, and merging two lists."]
+    ],
+    watch: [
+      ["WilliamFiset: Data Structures playlist (Class Central)", "https://classcentral.com/classroom/youtube-data-structures-playlist-49635", "Stack, queue, linked list and heap theory with code"],
+      ["NeetCode: Linked List playlist", "https://www.youtube.com/watch?v=G0_I-ZF0S38&list=PLot-Xpze53leU0Ec0VkBhnf4npMRFiNcB&index=2", "Start with Reverse Linked List"],
+      ["NeetCode: Search in Rotated Sorted Array", "https://youtu.be/U8XENwh8Oy8", "The classic binary search twist"],
+      ["NeetCode: Blind 75 playlist", "https://www.youtube.com/watch?v=KLlXCFG5TnA&list=PLot-Xpze53ldVwtstag2TL4HQhAnC8ATf", "Find the stack and search videos here"]
+    ],
+    practice: [
+      ["Valid Parentheses", "valid-parentheses", "E", "Stack of open brackets", 1],
+      ["Min Stack", "min-stack", "M", "Stack that stores the running minimum", 1],
+      ["Daily Temperatures", "daily-temperatures", "M", "Monotonic stack", 1],
+      ["Binary Search", "binary-search", "E", "Low, high, mid", 1],
+      ["Find Minimum in Rotated Sorted Array", "find-minimum-in-rotated-sorted-array", "M", "Compare mid with the right end", 0],
+      ["Search in Rotated Sorted Array", "search-in-rotated-sorted-array", "M", "Decide which half is sorted", 1],
+      ["Reverse Linked List", "reverse-linked-list", "E", "Three pointers: prev, curr, next", 1],
+      ["Linked List Cycle", "linked-list-cycle", "E", "Fast and slow pointers", 1],
+      ["Merge Two Sorted Lists", "merge-two-sorted-lists", "E", "Dummy head node", 1],
+      ["Reorder List", "reorder-list", "M", "Find the middle, reverse, merge", 0],
+      ["LRU Cache", "lru-cache", "M", "Hash map plus doubly linked list", 0]
+    ],
+    tip: "For linked lists, draw the nodes and arrows on paper before you write the pointer updates."
+  },
+  {
+    n: 3, title: "Trees, heaps, tries", hours: "7 h",
+    goal: "Get comfortable with recursion on trees, then use a heap whenever a problem asks for the top k or a running median.",
+    stops: [
+      ["Binary tree and DFS", "Most tree problems are a recursive function that returns something from each child."],
+      ["BFS and level order", "Use a queue and process one level at a time."],
+      ["Binary search tree", "Left is smaller, right is larger. An in-order walk gives sorted values."],
+      ["Heap / priority queue", "Top k, k-th largest, merging sorted streams, and a running median."],
+      ["Trie (optional)", "Prefix lookups. Do one problem so you have seen it."]
+    ],
+    watch: [
+      ["NeetCode: Trees playlist", "https://www.youtube.com/watch?v=OnSn2XEQ4MY&list=PLot-Xpze53ldg4pN6PfzoJY7KsKcxF1jg&index=2", "Watch in order, the early videos build the recursion habit"],
+      ["NeetCode: Top K Frequent Elements (heap approach)", "https://youtu.be/YPTqKIgVk-k", "Why a heap beats sorting here"],
+      ["NeetCode: Find Median from Data Stream", "https://youtu.be/itmhHWaHupI", "Two heaps"],
+      ["freeCodeCamp: Learn data structures visually (1 h)", "https://www.freecodecamp.org/news/lear-data-structures-and-algorithms-visually/", "Short visual refresher on heaps, BSTs and tries"]
+    ],
+    practice: [
+      ["Invert Binary Tree", "invert-binary-tree", "E", "Swap children recursively", 1],
+      ["Maximum Depth of Binary Tree", "maximum-depth-of-binary-tree", "E", "DFS returns 1 + max of children", 1],
+      ["Binary Tree Level Order Traversal", "binary-tree-level-order-traversal", "M", "BFS with a queue", 1],
+      ["Lowest Common Ancestor of a BST", "lowest-common-ancestor-of-a-binary-search-tree", "M", "Use the BST ordering to choose a side", 0],
+      ["Validate Binary Search Tree", "validate-binary-search-tree", "M", "Pass down a valid min and max", 1],
+      ["Kth Largest Element in an Array", "kth-largest-element-in-an-array", "M", "Min heap of size k", 1],
+      ["Find Median from Data Stream", "find-median-from-data-stream", "H", "Max heap plus min heap", 0],
+      ["Implement Trie (Prefix Tree)", "implement-trie-prefix-tree", "M", "Nodes with a children map", 0]
+    ],
+    tip: "When a tree problem feels hard, ask what each node needs to report to its parent. That is the return value."
+  },
+  {
+    n: 4, title: "Graphs and backtracking", hours: "7 h",
+    goal: "Treat a grid or a dependency list as a graph, and learn the choose, explore, undo template for generating all answers.",
+    stops: [
+      ["Graph representation", "Adjacency list for most problems. A grid is a graph where each cell links to four neighbours."],
+      ["DFS and BFS on graphs", "Keep a visited set so you never loop forever."],
+      ["Topological order", "Course schedule style problems: can everything be finished, and in what order."],
+      ["Backtracking", "Choose, explore, undo. Subsets, permutations and combinations all follow this shape."]
+    ],
+    watch: [
+      ["NeetCode: Graphs playlist", "https://www.youtube.com/watch?v=EgI5nU9etnU&list=PLot-Xpze53ldBT_7QA8NVot219jFNr_GI", "Start with Number of Islands"],
+      ["NeetCode: Backtracking playlist", "https://www.youtube.com/watch?v=pfiQ_PS1g8E&list=PLot-Xpze53lf5C3HSjCnyFghlW0G1HHXo", "Subsets first, the others build on it"],
+      ["freeCodeCamp: Data structures in C and C++ (MyCodeSchool, 10 h)", "https://classcentral.com/classroom/freecodecamp-data-structures-full-course-using-c-and-c-57801", "Graph representation videos are near the end"]
+    ],
+    practice: [
+      ["Number of Islands", "number-of-islands", "M", "DFS or BFS flood fill on a grid", 1],
+      ["Clone Graph", "clone-graph", "M", "DFS with a map from old node to copy", 0],
+      ["Course Schedule", "course-schedule", "M", "Detect a cycle in a directed graph", 1],
+      ["Subsets", "subsets", "M", "Include or skip each element", 1],
+      ["Combination Sum", "combination-sum", "M", "Backtrack, reuse the same number", 1],
+      ["Permutations", "permutations", "M", "Swap or track used elements", 0],
+      ["Word Search", "word-search", "M", "Backtracking on a grid", 0]
+    ],
+    tip: "Seven problems is intentional. Graphs and backtracking take longer per problem, so spend the time reading solutions properly."
+  },
+  {
+    n: 5, title: "Dynamic programming and a final mock", hours: "8 h",
+    goal: "Learn to spot overlapping subproblems, then spend the last hours on timed practice across everything you covered.",
+    stops: [
+      ["Recursion with memoization", "Write the plain recursive answer first, then cache repeated calls."],
+      ["1-D DP", "Climbing stairs, house robber, coin change. The answer at step i depends on a few earlier steps."],
+      ["2-D DP", "Grid paths and sequences. A table indexed by two positions."],
+      ["Intervals", "Sort by start, then merge in one pass."],
+      ["Timed mock", "Two problems in 60 minutes, talking out loud, as if the interviewer is listening."]
+    ],
+    watch: [
+      ["NeetCode: Dynamic Programming playlist", "https://www.youtube.com/watch?v=73r3KWiEvyk&list=PLot-Xpze53lcvx_tjrr_m2lgD2NsRHlNO&index=1", "Main resource for the day"],
+      ["freeCodeCamp: Dynamic programming through visuals (2 h)", "https://youtu.be/66hDgWottdA", "Six DP patterns with Python code"],
+      ["freeCodeCamp: Dynamic Programming with Java (Alvin Zablan)", "https://www.youtube.com/watch?v=oFkDldu3C_4", "Slower, beginner friendly, memoization then tabulation"],
+      ["NeetCode: Maximum Subarray", "https://youtu.be/5WZl3MMT0Eg", "Kadane's algorithm"]
+    ],
+    practice: [
+      ["Climbing Stairs", "climbing-stairs", "E", "Fibonacci in disguise", 1],
+      ["House Robber", "house-robber", "M", "Rob this one or skip it", 1],
+      ["Coin Change", "coin-change", "M", "Fewest coins for each amount", 1],
+      ["Longest Increasing Subsequence", "longest-increasing-subsequence", "M", "Best length ending at each index", 0],
+      ["Word Break", "word-break", "M", "Can the prefix up to i be built", 0],
+      ["Unique Paths", "unique-paths", "M", "2-D grid DP", 1],
+      ["Maximum Subarray", "maximum-subarray", "M", "Kadane's algorithm", 1],
+      ["Merge Intervals", "merge-intervals", "M", "Sort by start, merge overlaps", 1]
+    ],
+    tip: "Final two hours: pick one problem you missed this week and one you have never seen. Solve both on a timer, no hints."
+  }
+];
+
+var KEY = "dsa5-progress";
+var done = {};
+try { done = JSON.parse(localStorage.getItem(KEY) || "{}") || {}; } catch (e) { done = {}; }
+function save() { try { localStorage.setItem(KEY, JSON.stringify(done)); } catch (e) {} }
+
+function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+function link(text, href) { var a = el("a", null, text); a.href = href; a.target = "_blank"; a.rel = "noopener"; return a; }
+function block(title) { var b = el("section", "block"); b.appendChild(el("h3", null, title)); return b; }
+
+var root = document.getElementById("roadmap");
+var totalProblems = 0;
+DAYS.forEach(function (d) {
+  var day = el("article", "day"); day.id = "day-" + d.n;
+  day.appendChild(el("div", "station", String(d.n)));
+  var head = el("div", "day-head");
+  head.appendChild(el("h2", null, d.title));
+  head.appendChild(el("span", "hours", "Day " + d.n + " · " + d.hours));
+  day.appendChild(head);
+  day.appendChild(el("p", "goal", d.goal));
+
+  var b1 = block("Learn");
+  var ul = el("ul", "stops");
+  d.stops.forEach(function (s) {
+    var li = el("li"); var w = el("div");
+    w.appendChild(el("b", null, s[0] + ". ")); w.appendChild(el("span", null, s[1]));
+    li.appendChild(w); ul.appendChild(li);
+  });
+  b1.appendChild(ul); day.appendChild(b1);
+
+  var b2 = block("Watch");
+  var wl = el("ul", "watch");
+  d.watch.forEach(function (v) {
+    var li = el("li"); li.appendChild(link(v[0], v[1])); li.appendChild(el("span", "tag", v[2])); wl.appendChild(li);
+  });
+  b2.appendChild(wl); day.appendChild(b2);
+
+  var b3 = block("Practice");
+  var pl = el("ul", "practice");
+  d.practice.forEach(function (p) {
+    totalProblems++;
+    var id = "p-" + p[1];
+    var li = el("li");
+    var cb = el("input"); cb.type = "checkbox"; cb.id = id; cb.setAttribute("aria-label", "Solved " + p[0]);
+    cb.checked = !!done[p[1]];
+    if (cb.checked) li.className = "done";
+    cb.addEventListener("change", function () {
+      if (cb.checked) done[p[1]] = 1; else delete done[p[1]];
+      li.classList.toggle("done", cb.checked); save(); refresh();
+    });
+    var nm = el("div", "name"); nm.appendChild(link(p[0], LC(p[1]))); nm.appendChild(el("span", "pat", p[3]));
+    var ch = el("div", "chips");
+    if (p[4]) { var c = el("span", "core", "★ core"); ch.appendChild(c); }
+    ch.appendChild(el("span", "d " + p[2], p[2] === "E" ? "Easy" : p[2] === "M" ? "Medium" : "Hard"));
+    li.appendChild(cb); li.appendChild(nm); li.appendChild(ch); pl.appendChild(li);
+  });
+  b3.appendChild(pl);
+  var cnt = el("div", "count"); cnt.id = "count-" + d.n; b3.appendChild(cnt);
+  day.appendChild(b3);
+
+  var tip = el("p", "tip"); tip.appendChild(el("b", null, "Tip")); tip.appendChild(document.createTextNode(d.tip));
+  day.appendChild(tip);
+  root.appendChild(day);
+});
+
+function refresh() {
+  var all = 0, solved = 0;
+  DAYS.forEach(function (d) {
+    var s = d.practice.filter(function (p) { return done[p[1]]; }).length;
+    all += d.practice.length; solved += s;
+    document.getElementById("count-" + d.n).textContent = s + " of " + d.practice.length + " solved today";
+  });
+  document.getElementById("total").textContent = all;
+  document.getElementById("overall-text").textContent = solved + " / " + all + " solved";
+  document.getElementById("overall-bar").style.width = (all ? Math.round(solved / all * 100) : 0) + "%";
+}
+refresh();
+</script>
+
+</body></html>
